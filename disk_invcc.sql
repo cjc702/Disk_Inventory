@@ -4,6 +4,7 @@
 *		Caleb Crownover		02/28/2019			Initial implementation of disk_invcc.
 *		Caleb Crownover		03/08/2019			Table modification.
 *		Caleb Crownover		03/14/2019			Creating T-SQL queries for database.
+*		Caleb Crownover		03/19/2019			Creating stored procedures for database.
 *********************************************************************************************************/
 use master
 go
@@ -330,4 +331,242 @@ select disk_name as 'Disk Name', eomonth(borrowed_date) as 'Borrowed', eomonth(r
 		join diskHasBorrower on diskHasBorrower.disk_id = disk.disk_id
 		join borrower on borrower.borrower_id = diskHasBorrower.borrower_id
 	where returned_date is null
+go
+
+----------------------------------------------------------------------------------------
+-- Project 5
+use disk_inventorycc
+go
+--Document each SQL statement – what it is supposed to do. Stored procs & execute statements.
+--Script file includes all required ‘GO’ statements.
+--Script file includes all execute statements needed to invoke each stored procedure.
+
+--Create Insert, Update, and Delete stored procedures for the borrower table. Update procedure accepts a primary key value and the borrower’s names for update. Insert accepts all columns as input parameters except for identity fields. Delete accepts a primary key value for delete.
+--insert
+drop procedure if exists ins_borrower
+go
+create procedure ins_borrower
+	@fname nvarchar(100),
+	@lname nvarchar(100),
+	@phone_num nvarchar(50)
+as
+--Stored procedures/execs contain error processing (try-catch).
+	begin try
+		INSERT into dbo.borrower
+				(fname, lname, phone_num)
+		VALUES (@fname, @lname, @phone_num);
+	end try
+	begin catch
+		print 'Error occurred when attempting to insert a new borrower into the database.'
+		print 'Message: ' + convert(varchar, error_message())
+	end catch
+go
+--insert exec
+exec ins_borrower 'Rando', 'Mcgee', '555-555-5555'
+go
+
+--update
+drop procedure if exists upd_borrower
+go
+create procedure upd_borrower
+	@borrower_id int,
+	@fname nvarchar(100),
+	@lname nvarchar(100),
+	@phone_num nvarchar(50)
+as
+--Stored procedures/execs contain error processing (try-catch).
+	begin try
+		update dbo.borrower
+		set fname = @fname
+			,lname = @lname
+			,phone_num = @phone_num
+		where borrower_id = @borrower_id
+	end try
+	begin catch
+		print 'Error occurred when attempting to update a borrower in the database.'
+		print 'Message: ' + convert(varchar, error_message())
+	end catch
+go
+--update exec
+exec upd_borrower 21, 'NotsoRando', 'McGee', '111-111-1111'
+go
+
+--delete
+drop procedure if exists del_borrower
+go
+create procedure del_borrower
+	@borrower_id int
+as
+--Stored procedures/execs contain error processing (try-catch).
+	begin try
+		delete dbo.borrower
+		where borrower_id = @borrower_id
+	end try
+	begin catch
+		print 'Error occurred when attempting to delete a borrower from the database.'
+		print 'Message: ' + convert(varchar, error_message())
+	end catch
+go
+--delete exec
+exec del_borrower 21
+go
+
+--check
+select * from borrower
+go
+
+
+--Create Insert, Update, and Delete stored procedures for the artist table. Update procedure accepts a primary key value and the artist’s names for update. Insert accepts all columns as input parameters except for identity fields. Delete accepts a primary key value for delete.
+--insert
+drop procedure if exists ins_artist
+go
+create procedure ins_artist
+	@fname nvarchar(100),
+	@lname nvarchar(100),
+	@artist_type_id int
+as
+--Stored procedures/execs contain error processing (try-catch).
+	begin try
+		INSERT into dbo.artist
+			(fname, lname, artist_type_id)
+		VALUES (@fname, @lname, @artist_type_id);
+	end try
+	begin catch
+		print 'Error occurred when attempting to insert a new artist into the database.'
+		print 'Message: ' + convert(varchar, error_message())
+	end catch
+go
+--insert exec
+exec ins_artist 'Green', 'Day', 2
+go
+
+--update
+drop procedure if exists upd_artist
+go
+create procedure upd_artist
+	@artist_id int,
+	@fname nvarchar(100),
+	@lname nvarchar(100),
+	@artist_type_id int
+as
+--Stored procedures/execs contain error processing (try-catch).
+	begin try
+		update dbo.artist
+		set fname = @fname
+			,lname = @lname
+			,artist_type_id = @artist_type_id
+		where artist_id = @artist_id
+	end try
+	begin catch
+		print 'Error occurred when attempting to update an artist in the database.'
+		print 'Message: ' + convert(varchar, error_message())
+	end catch
+go
+--update exec
+exec upd_artist 22, 'NotsoGreen', 'Day', 2
+go
+
+--delete
+drop procedure if exists del_artist
+go
+create procedure del_artist
+	@artist_id int
+as
+--Stored procedures/execs contain error processing (try-catch).
+	begin try
+		delete dbo.artist
+		where artist_id = @artist_id
+	end try
+	begin catch
+		print 'Error occurred when attempting to delete an artist from the database.'
+		print 'Message: ' + convert(varchar, error_message())
+	end catch
+go
+--delete exec
+exec del_artist 22
+go
+
+--check
+select * from artist
+go
+
+
+--Create Insert, Update, and Delete stored procedures for the disk table. Update procedure accepts a primary key value and the disk information for update. Insert accepts all columns as input parameters except for identity fields. Delete accepts a primary key value for delete.
+--insert
+drop procedure if exists ins_disk
+go
+create procedure ins_disk
+	@disk_name varchar(100),
+	@release_date datetime,
+	@genre_id int,
+	@status_id int,
+	@disk_type_id int
+as
+--Stored procedures/execs contain error processing (try-catch).
+	begin try
+		INSERT into dbo.disk
+				(disk_name, release_date, genre_id, status_id, disk_type_id)
+		VALUES (@disk_name, @release_date, @genre_id, @status_id, @disk_type_id);
+	end try
+	begin catch
+		print 'Error occurred when attempting to insert a new disk into the database.'
+		print 'Message: ' + convert(varchar, error_message())
+	end catch
+go
+--insert exec
+exec ins_disk 'addition1', '03/18/2018', 1, 1, 1
+go
+
+--update
+drop procedure if exists upd_disk
+go
+create procedure upd_disk
+	@disk_id int,
+	@disk_name varchar(100),
+	@release_date datetime,
+	@genre_id int,
+	@status_id int,
+	@disk_type_id int
+as
+--Stored procedures/execs contain error processing (try-catch).
+	begin try
+		update dbo.disk
+		set disk_name = @disk_name
+			,release_date = @release_date
+			,genre_id = @genre_id
+			,status_id = @status_id
+			,disk_type_id = @disk_type_id
+		where disk_id = @disk_id
+	end try
+	begin catch
+		print 'Error occurred when attempting to update a disk in the database.'
+		print 'Message: ' + convert(varchar, error_message())
+	end catch
+go
+--update exec
+exec upd_disk 21, 'badaddition1', '03/18/2019', 1, 3, 1
+go
+
+--delete
+drop procedure if exists del_disk
+go
+create procedure del_disk
+	@disk_id int
+as
+--Stored procedures/execs contain error processing (try-catch).
+	begin try
+		delete dbo.disk
+		where disk_id = @disk_id
+	end try
+	begin catch
+		print 'Error occurred when attempting to delete a disk from the database.'
+		print 'Message: ' + convert(varchar, error_message())
+	end catch
+go
+--delete exec
+exec del_disk 21
+go
+
+--check
+Select * from disk
 go
